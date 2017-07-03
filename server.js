@@ -9,10 +9,10 @@ function resolveURL(url) {
 }
 
 // Please use HTTPs on non-localhost domains.
-var isUseHTTPs = false;
+var isUseHTTPs = true;
 
 // var port = 443;
-var port = process.env.PORT || 9001;
+var port = process.env.PORT || 80;
 
 var fs = require('fs');
 var path = require('path');
@@ -20,8 +20,10 @@ var path = require('path');
 // see how to use a valid certificate:
 // https://github.com/muaz-khan/WebRTC-Experiment/issues/62
 var options = {
-    key: fs.readFileSync(path.join(__dirname, resolveURL('fake-keys/privatekey.pem'))),
-    cert: fs.readFileSync(path.join(__dirname, resolveURL('fake-keys/certificate.pem')))
+    cert: fs.readFileSync('/etc/letsencrypt/live/vds43994-env-61814791.unicloud.pl/cert.pem'),
+    //cert: fs.readFileSync('/etc/ssl/certs/ssl-cert-snakeoil.pem'),
+    key: fs.readFileSync('/etc/letsencrypt/live/vds43994-env-61814791.unicloud.pl/privkey.pem')
+    //key: fs.readFileSync('/etc/ssl/private/ssl-cert-snakeoil.key')
 };
 
 // force auto reboot on failures
@@ -32,7 +34,7 @@ var autoRebootServerOnFailure = false;
 try {
     var config = require(resolveURL('./config.json'));
 
-    if ((config.port || '').toString() !== '9001') {
+    if ((config.port || '').toString() !== '80') {
         port = parseInt(config.port);
     }
 
@@ -222,7 +224,7 @@ function runServer() {
             console.log('\x1b[31m%s\x1b[0m ', socketURL + ' is already in use. Please kill below processes using "kill PID".');
             console.log('------------------------------');
 
-            foo = new cmd_exec('lsof', ['-n', '-i4TCP:9001'],
+            foo = new cmd_exec('lsof', ['-n', '-i4TCP:80'],
                 function(me, data) {
                     me.stdout += data.toString();
                 },
